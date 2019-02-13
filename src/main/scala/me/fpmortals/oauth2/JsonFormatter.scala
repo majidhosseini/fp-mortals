@@ -1,6 +1,7 @@
 package me.fpmortals.oauth2.jsonformat
 
-import scalaz.IList
+import scalaz._
+import simulacrum.typeclass
 
 sealed abstract class JsValue
 
@@ -10,5 +11,12 @@ final case class JsArray(elements: IList[JsValue]) extends JsValue
 final case class JsBoolean(value: Boolean) extends JsValue
 final case class JsString(value: String) extends JsValue
 final case class JsDouble(value: Double) extends JsValue
-final case class JsInteger(value: Integer) extends JsValue
+final case class JsInteger(value: Long) extends JsValue
 
+@typeclass trait JsEncoder[A] {
+  def toJson(obj: A): JsValue
+}
+
+@typeclass trait JsDecoder[A] {
+  def fromJson(json: JsValue): String \/ A
+}

@@ -2,6 +2,8 @@ package me.fpmortals.oauth2
 
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.string.Url
+import jsonformat._
+import JsDecoder.ops._
 
 final case class AuthRequest(
   redirect_uri: String Refined Url,
@@ -28,6 +30,16 @@ final case class AccessResponse(
   refresh_token: String
 )
 
+object AccessResponse {
+  implicit val json: JsDecoder[AccessResponse] = j =>
+    for {
+      acc <- j.getAs[String]("access_token")
+      tpe <- j.getAs[String]("token_type")
+      exp <- j.getAs[Long]("expires_in")
+      ref <- j.getAs[String]("refresh_token")
+    } yield AccessResponse(acc, tpe, exp, ref)
+}
+
 final case class RefreshRequest(
   client_secret: String,
   refresh_token: String,
@@ -40,3 +52,14 @@ final case class RefreshResponse(
   token_type: String,
   expires_in: Long
 )
+
+object RefreshResponse {
+  implicit val json: JsDecoder[RefreshResponse] = j =>
+    for {
+      acc <- j.getAs[String]("access_token")
+      tpe <- j.getAs[String]("token_type")
+      exp <- j.getAs[Long]("expires_in")
+    } yield RefreshResponse(acc, tpe, exp)
+}
+
+
